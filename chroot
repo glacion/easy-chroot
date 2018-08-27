@@ -1,0 +1,36 @@
+#!/bin/sh
+
+if [ "$EUID" -ne 0 ] ; then
+    echo "This script must be run as root."
+    exit
+elif [ "$1" == "" ] ; then
+    echo "No target destination given."
+    exit
+fi
+
+SHELL=''
+
+if [ "$2" != "" ] ; then
+    SHELL=$2
+else
+    SHELL='/bin/bash'
+fi
+
+mount -t proc proc $1/proc
+mount -t sysfs sys $1/sys
+mount -o bind /dev $1/dev
+mount -o bind /run $1/run
+
+echo 'Entering chroot'
+
+SHELL=$SHELL unshare --fork --pid \
+    chroot $1 /usr/bin/env -i PS1='(chroot) \w > ' \
+                              HOME=/root \
+                              TERM="$TERM" \
+                              $SHELL
+
+echo 'Cleaning up'
+umount $1/proc
+umount $1/sys
+umount $1/dev
+umount $1/run
