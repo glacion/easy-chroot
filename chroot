@@ -20,6 +20,7 @@ mount -t proc proc $1/proc
 mount -t sysfs sys $1/sys
 mount -o bind /dev $1/dev
 mount -o bind /run $1/run
+touch $1/etc/resolv.conf
 mount -o bind /etc/resolv.conf $1/etc/resolv.conf
 
 echo 'Entering chroot'
