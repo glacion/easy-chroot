@@ -23,17 +23,12 @@ if [ ! -z '/sys/firmware/efi/efivars' ] ; then
 fi
 mount -o bind /dev $1/dev
 mount -o bind /run $1/run
-touch $1/etc/resolv.conf
-mount -o bind /etc/resolv.conf $1/etc/resolv.conf
 
 echo 'Entering chroot'
-
 SHELL=$SHELL unshare --fork --pid \
-    chroot $1 /usr/bin/env -i PS1='(chroot) \w > ' \
-                              HOME=/root \
-                              TERM="$TERM" \
-                              PATH="$PATH" \
-                              $SHELL \
+    chroot $1 $SHELL -c \
+    "source /etc/profile ; \
+    /usr/bin/env -i PS1='(chroot) \w > ' HOME=/root TERM="$TERM" $SHELL"
 
 echo 'Cleaning up'
 umount $1/proc
@@ -41,4 +36,3 @@ umount -R $1/sys
 umount $1/dev
 umount $1/run
 umount $1/etc/resolv.conf
-
