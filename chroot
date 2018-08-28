@@ -18,6 +18,9 @@ fi
 
 mount -t proc proc $1/proc
 mount -t sysfs sys $1/sys
+if [ ! -z '/sys/firmware/efi/efivars' ] ; then
+        mount -t efivarfs efivars $1/sys/firmware/efi/efivars
+fi
 mount -o bind /dev $1/dev
 mount -o bind /run $1/run
 touch $1/etc/resolv.conf
@@ -30,11 +33,12 @@ SHELL=$SHELL unshare --fork --pid \
                               HOME=/root \
                               TERM="$TERM" \
                               PATH="$PATH" \
-                              $SHELL
+                              $SHELL \
 
 echo 'Cleaning up'
 umount $1/proc
-umount $1/sys
+umount -R $1/sys
 umount $1/dev
 umount $1/run
 umount $1/etc/resolv.conf
+
