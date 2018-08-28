@@ -29,6 +29,7 @@ SHELL=$SHELL unshare --fork --pid \
     chroot $1 /usr/bin/env -i PS1='(chroot) \w > ' \
                               HOME=/root \
                               TERM="$TERM" \
+                              PATH="$PATH" \
                               $SHELL
 
 echo 'Cleaning up'
